@@ -2,7 +2,7 @@
 import {
   UserGroupIcon,
   HomeIcon,
-  DocumentDuplicateIcon, PencilSquareIcon, BookOpenIcon, AcademicCapIcon
+  DocumentDuplicateIcon, PencilSquareIcon, BookOpenIcon, AcademicCapIcon, ArrowsRightLeftIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -16,6 +16,7 @@ const links = [
   { name: 'Asignaturas', href: '/dashboard/subjects', icon: BookOpenIcon },
   { name: 'Grados', href: '/dashboard/grades', icon: AcademicCapIcon },
   { name: 'Notas', href: '/dashboard/notes  ', icon: PencilSquareIcon },
+  { name: 'Asignaciones', href: '/dashboard/assignments  ', icon: ArrowsRightLeftIcon },
   { name: 'Invoices', href: '/dashboard/invoices', icon: DocumentDuplicateIcon },
   { name: 'Customers', href: '/dashboard/customers', icon: UserGroupIcon },
 ];

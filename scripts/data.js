@@ -3,10 +3,65 @@
 const users = [
   {
     id: '410544b2-4001-4271-9855-fec4b6a6442a',
-    name: 'User',
-    email: 'user@nextmail.com',
+    name: 'Alejandro',
+    lastname: 'Lopez',
+    document_type: 'CC',
+    document_number: '16934777',
+    phone: '3155875050',
+    address: 'Cra 39',
+    role: 'Administrador',
+    email: 'admin@sonia.com',
     password: '123456',
   },
+  {
+    id: '410544c2-4001-4271-9855-fec4b6a6442a',
+    name: 'Jader',
+    lastname: 'Castro',
+    document_type: 'CC',
+    document_number: '16934888',
+    phone: '3155876060',
+    address: 'Calle 39',
+    role: 'Docente',
+    email: 'docente@sonia.com',
+    password: '654321',
+  },
+  {
+    id: '410544d2-4001-4271-9855-fec4b6a6442a',
+    name: 'Giovannis',
+    lastname: 'Guerra',
+    document_type: 'CC',
+    document_number: '16934999',
+    phone: '3155877070',
+    address: 'Cra 93',
+    role: 'Estudiante',
+    email: 'estudiante@sonia.com',
+    password: '777777',
+  },
+];
+
+const subjects = [
+  {
+    id: '410544d2-4001-4271-9855-fec4b6a6442b',
+    name: 'Matematicas', 
+  }
+];
+
+const grades = [
+  {
+    id: '410544d2-4001-4271-9855-fec4b6a6442c',
+    name: 'Primero',
+  }
+];
+
+const notes = [
+  {
+    id: '410544d2-4001-4271-9855-fec4b6a6442d',
+    user_id: '410544d2-4001-4271-9855-fec4b6a6442a',
+    subject_id: '410544d2-4001-4271-9855-fec4b6a6442b',
+    note_1: 4,
+    note_2: 3,
+    note_3: 3,
+  }
 ];
 
 const customers = [
