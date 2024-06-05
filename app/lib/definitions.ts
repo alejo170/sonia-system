@@ -1,88 +1,85 @@
-// This file contains type definitions for your data.
-// It describes the shape of the data, and what data type each property should accept.
-// For simplicity of teaching, we're manually defining these types.
-// However, these types are generated automatically if you're using an ORM such as Prisma.
+// Este archivo contiene definiciones de tipos para los datos..
+// Describe la forma de los datos y qué tipo de datos debe aceptar cada propiedad.
+// Se definen estos tipos manualmente
 export type User = {
   id: string;
   name: string;
+  lastname: string;
+  document_type: string;
+  document_number: string;
+  phone: string;
+  address: string;
   email: string;
   password: string;
+  //En TypeScript, esto se denomina tipo de unión de cadena.
+  //Significa que la propiedad "rol" sólo puede ser una de las tres cadenas: 'Administrador','Docente' o 'Estudiante'
+  role: 'Administrador' | 'Docente' | 'Estudiante';
 };
 
-export type Customer = {
-  id: string;
-  name: string;
-  email: string;
-  image_url: string;
-};
-
-export type Invoice = {
-  id: string;
-  customer_id: string;
-  amount: number;
-  date: string;
-  // In TypeScript, this is called a string union type.
-  // It means that the "status" property can only be one of the two strings: 'pending' or 'paid'.
-  status: 'pending' | 'paid';
-};
-
-export type Revenue = {
-  month: string;
-  revenue: number;
-};
-
-export type LatestInvoice = {
-  id: string;
-  name: string;
-  image_url: string;
-  email: string;
-  amount: string;
-};
-
-// The database returns a number for amount, but we later format it to a string with the formatCurrency function
-export type LatestInvoiceRaw = Omit<LatestInvoice, 'amount'> & {
-  amount: number;
-};
-
-export type InvoicesTable = {
-  id: string;
-  customer_id: string;
-  name: string;
-  email: string;
-  image_url: string;
-  date: string;
-  amount: number;
-  status: 'pending' | 'paid';
-};
-
-export type CustomersTableType = {
-  id: string;
-  name: string;
-  email: string;
-  image_url: string;
-  total_invoices: number;
-  total_pending: number;
-  total_paid: number;
-};
-
-export type FormattedCustomersTable = {
-  id: string;
-  name: string;
-  email: string;
-  image_url: string;
-  total_invoices: number;
-  total_pending: string;
-  total_paid: string;
-};
-
-export type CustomerField = {
+export type Subject = {
   id: string;
   name: string;
 };
 
-export type InvoiceForm = {
+export type Grade = {
   id: string;
-  customer_id: string;
-  amount: number;
-  status: 'pending' | 'paid';
+  name: string;
+};
+
+export type Note = {
+  id: string;
+  user_id: string;
+  user_name: string;
+  subject_id: string;
+  subject_name: string;
+  grade_id: string;
+  grade_name: string;
+  year: number;
+  period_1: number;
+  period_2: number;
+  final: number;
+};
+
+export type Student = {
+  id: string;
+  name: string;
+  lastname: string;
+};
+
+export type Teacher = {
+  id: string;
+  name: string;
+  lastname: string;
+};
+
+export type AssignmentsStudentGrade = {
+  id: string;
+  user_id: string;
+  user_name: string;
+  subject_id: string;
+  subject_name: string;
+  grade_id: string;
+  grade_name: string;
+  year: number;
+};
+
+export type AssignmentsTeacherSubject = {
+  id: string;
+  user_id: string;
+  subject_id: string;
+  subject_name: string;
+  grade_id: string;
+  year: number;
+};
+
+export type LatestTeacher = {
+  id: string;
+  name: string;
+  lastname: string;
+};
+
+export type LatestStudent = {
+  id: string;
+  name: string;
+  lastname: string;
 };

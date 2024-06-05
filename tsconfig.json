@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2017", //es5
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -28,7 +28,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "scripts/data.js",
-    "scripts/seed.js"
+    "scripts/seed.mjs"
   ],
   "exclude": ["node_modules"]
 }

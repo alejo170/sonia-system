@@ -1,231 +1,643 @@
 import { sql } from '@vercel/postgres';
 import {
-  CustomerField,
-  CustomersTableType,
-  InvoiceForm,
-  InvoicesTable,
-  LatestInvoiceRaw,
   User,
-  Revenue,
+  Subject,
+  Grade,
+  Note,
+  AssignmentsStudentGrade,
+  AssignmentsTeacherSubject,
+  Teacher,
+  Student,
+  LatestStudent,
+  LatestTeacher,
 } from './definitions';
-import { formatCurrency } from './utils';
-
-export async function fetchRevenue() {
-  // Add noStore() here prevent the response from being cached.
-  // This is equivalent to in fetch(..., {cache: 'no-store'}).
-
-  try {
-    // Artificially delay a response for demo purposes.
-    // Don't do this in production :)
-
-    // console.log('Fetching revenue data...');
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    const data = await sql<Revenue>`SELECT * FROM revenue`;
-
-    // console.log('Data fetch completed after 3 seconds.');
-
-    return data.rows;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch revenue data.');
-  }
-}
-
-export async function fetchLatestInvoices() {
-  try {
-    const data = await sql<LatestInvoiceRaw>`
-      SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      ORDER BY invoices.date DESC
-      LIMIT 5`;
-
-    const latestInvoices = data.rows.map((invoice) => ({
-      ...invoice,
-      amount: formatCurrency(invoice.amount),
-    }));
-    return latestInvoices;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch the latest invoices.');
-  }
-}
+import { unstable_noStore as noStore } from 'next/cache';
+const ITEMS_PER_PAGE = 6;
 
 export async function fetchCardData() {
+  noStore();
   try {
-    // You can probably combine these into a single SQL query
-    // However, we are intentionally splitting them to demonstrate
-    // how to initialize multiple queries in parallel with JS.
-    const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
-    const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
-    const invoiceStatusPromise = sql`SELECT
-         SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
-         SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
-         FROM invoices`;
+    const teacherCountPromise = sql`SELECT COUNT(*) FROM users WHERE role = 'Docente'`;
+    const studentCountPromise = sql`SELECT COUNT(*) FROM users WHERE role = 'Estudiante'`;
+    const subjectCountPromise = sql`SELECT COUNT(*) FROM subjects`;
+    const gradeCountPromise = sql`SELECT COUNT(*) FROM grades`;
 
     const data = await Promise.all([
-      invoiceCountPromise,
-      customerCountPromise,
-      invoiceStatusPromise,
+      teacherCountPromise,
+      studentCountPromise,
+      subjectCountPromise,
+      gradeCountPromise,
     ]);
 
-    const numberOfInvoices = Number(data[0].rows[0].count ?? '0');
-    const numberOfCustomers = Number(data[1].rows[0].count ?? '0');
-    const totalPaidInvoices = formatCurrency(data[2].rows[0].paid ?? '0');
-    const totalPendingInvoices = formatCurrency(data[2].rows[0].pending ?? '0');
+    const numberOfTeachers = Number(data[0].rows[0].count ?? '0');
+    const numberOfStudents = Number(data[1].rows[0].count ?? '0');
+    const numberOfSubjects = Number(data[2].rows[0].count ?? '0');
+    const numberOfGrades = Number(data[3].rows[0].count ?? '0');
 
     return {
-      numberOfCustomers,
-      numberOfInvoices,
-      totalPaidInvoices,
-      totalPendingInvoices,
+      numberOfTeachers,
+      numberOfStudents,
+      numberOfSubjects,
+      numberOfGrades,
     };
   } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch card data.');
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudieron recuperar los datos de la tarjeta.');
   }
 }
 
-const ITEMS_PER_PAGE = 6;
-export async function fetchFilteredInvoices(
-  query: string,
-  currentPage: number,
-) {
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-
-  try {
-    const invoices = await sql<InvoicesTable>`
-      SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      WHERE
-        customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
-        invoices.amount::text ILIKE ${`%${query}%`} OR
-        invoices.date::text ILIKE ${`%${query}%`} OR
-        invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
-
-    return invoices.rows;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoices.');
-  }
-}
-
-export async function fetchInvoicesPages(query: string) {
+export async function fetchUsersPages(query: string) {
+  noStore();
   try {
     const count = await sql`SELECT COUNT(*)
-    FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
+    FROM users
     WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
-      invoices.amount::text ILIKE ${`%${query}%`} OR
-      invoices.date::text ILIKE ${`%${query}%`} OR
-      invoices.status ILIKE ${`%${query}%`}
-  `;
+      name ILIKE ${`%${query}%`} OR
+      email ILIKE ${`%${query}%`} OR
+      role ILIKE ${`%${query}%`}     
+    `;
 
     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of invoices.');
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudo recuperar el numero de usuarios.');
   }
 }
 
-export async function fetchInvoiceById(id: string) {
+export async function fetchFilteredUsers(query: string, currentPage: number) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
   try {
-    const data = await sql<InvoiceForm>`
-      SELECT
-        invoices.id,
-        invoices.customer_id,
-        invoices.amount,
-        invoices.status
-      FROM invoices
-      WHERE invoices.id = ${id};
-    `;
-
-    const invoice = data.rows.map((invoice) => ({
-      ...invoice,
-      // Convert amount from cents to dollars
-      amount: invoice.amount / 100,
-    }));
-
-    return invoice[0];
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoice.');
-  }
-}
-
-export async function fetchCustomers() {
-  try {
-    const data = await sql<CustomerField>`
+    const filteredUsers = await sql<User>`
       SELECT
         id,
-        name
-      FROM customers
+        name,
+        lastname,
+        document_type,
+        document_number,
+        phone,
+        address,
+        role,
+        email,
+        password
+      FROM users
+      WHERE
+        name ILIKE ${`%${query}%`} OR
+        lastname ILIKE ${`%${query}%`} OR
+        role ILIKE ${`%${query}%`} OR
+        email ILIKE ${`%${query}%`}
+      ORDER BY name ASC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return filteredUsers.rows;
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudo recuperar todos los usuarios.');
+  }
+}
+
+export async function fetchUserById(id: string) {
+  noStore();
+  try {
+    const data = await sql<User>`
+      SELECT id, name, lastname, document_type, document_number, phone, address, email, password, role
+      FROM users
+      WHERE id = ${id};
+    `;
+
+    const user = data.rows.map((user) => ({
+      ...user,
+    }));
+
+    return user[0];
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudo recuperar el usuario.');
+  }
+}
+
+export async function fetchTeachers() {
+  noStore();
+  try {
+    const data = await sql<Teacher>`
+      SELECT
+        id,
+        name,
+        lastname
+      FROM users
+      WHERE role = 'Docente'
       ORDER BY name ASC
     `;
 
-    const customers = data.rows;
-    return customers;
+    const teachers = data.rows;
+    return teachers;
   } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch all customers.');
+    console.error('Error en la base de datos:', err);
+    throw new Error('No se pudieron recuperar todos los docentes.');
   }
 }
 
-export async function fetchFilteredCustomers(query: string) {
+export async function fetchStudents() {
+  noStore();
   try {
-    const data = await sql<CustomersTableType>`
-		SELECT
-		  customers.id,
-		  customers.name,
-		  customers.email,
-		  customers.image_url,
-		  COUNT(invoices.id) AS total_invoices,
-		  SUM(CASE WHEN invoices.status = 'pending' THEN invoices.amount ELSE 0 END) AS total_pending,
-		  SUM(CASE WHEN invoices.status = 'paid' THEN invoices.amount ELSE 0 END) AS total_paid
-		FROM customers
-		LEFT JOIN invoices ON customers.id = invoices.customer_id
-		WHERE
-		  customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`}
-		GROUP BY customers.id, customers.name, customers.email, customers.image_url
-		ORDER BY customers.name ASC
-	  `;
+    const data = await sql<Student>`
+      SELECT
+        id,
+        name,
+        lastname
+      FROM users
+      WHERE role = 'Estudiante'
+      ORDER BY name ASC
+    `;
 
-    const customers = data.rows.map((customer) => ({
-      ...customer,
-      total_pending: formatCurrency(customer.total_pending),
-      total_paid: formatCurrency(customer.total_paid),
+    const students = data.rows;
+    return students;
+  } catch (err) {
+    console.error('Error en la base de datos:', err);
+    throw new Error('No se pudieron recuperar todos los estudiantes.');
+  }
+}
+
+export async function fetchLatestTeachers() {
+  // Se agrega noStore() aquí para evitar que la respuesta se almacene en caché.
+  // Esto es equivalente a (..., {cache: 'no-store'}).
+  noStore();
+  try {
+    const data = await sql<LatestTeacher>`
+      SELECT name, lastname
+      FROM users
+      WHERE role = 'Docente'
+      ORDER BY name ASC
+      LIMIT 3`;
+
+    const latestTeachers = data.rows.map((teachers) => ({
+      ...teachers,
+    }));
+    return latestTeachers;
+  } catch (error) {
+    console.error('Error en la base de datos: ', error);
+    throw new Error('No se pudieron recuperar los últimos docentes.');
+  }
+}
+// Logica para traer los ultimos estudiantes agregados en la aplicación
+export async function fetchLatestStudents() {
+  noStore();
+  try {
+    const data = await sql<LatestStudent>`
+      SELECT name, lastname
+      FROM users
+      WHERE role = 'Estudiante'
+      ORDER BY name ASC
+      LIMIT 3`;
+
+    const latestStudents = data.rows.map((students) => ({
+      ...students,
+    }));
+    return latestStudents;
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudieron recuperar los últimos estudiantes.');
+  }
+}
+
+export async function fetchSubjects() {
+  noStore();
+  try {
+    const data = await sql<Subject>`
+      SELECT
+        id,
+        name
+      FROM subjects
+      ORDER BY name ASC
+    `;
+
+    const subjects = data.rows;
+    return subjects;
+  } catch (err) {
+    console.error('Error en la base de datos:', err);
+    throw new Error('No se pudieron recuperar todas las asignaturas.');
+  }
+}
+
+export async function fetchSubjectsPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM subjects
+    WHERE
+      name ILIKE ${`%${query}%`}
+    `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudieron recuperar el numero de asignaturas.');
+  }
+}
+
+export async function fetchFilteredSubjects(
+  query: string,
+  currentPage: number,
+) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const filteredSubjects = await sql<Subject>`
+      SELECT
+        id,
+        name
+      FROM subjects
+      WHERE
+        name ILIKE ${`%${query}%`}
+      ORDER BY name ASC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return filteredSubjects.rows;
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudieron recuperar las asignaturas.');
+  }
+}
+
+export async function fetchSubjectById(id: string) {
+  noStore();
+  try {
+    const data = await sql<Subject>`
+      SELECT id, name
+      FROM subjects
+      WHERE id = ${id};
+    `;
+
+    const subject = data.rows.map((subject) => ({
+      ...subject,
     }));
 
-    return customers;
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch customer table.');
+    return subject[0];
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudo recuperar la asignatura.');
   }
 }
 
-export async function getUser(email: string) {
+export async function fetchGrades() {
+  noStore();
   try {
-    const user = await sql`SELECT * FROM users WHERE email=${email}`;
-    return user.rows[0] as User;
+    const data = await sql<Grade>`
+      SELECT
+        id,
+        name
+      FROM grades
+      ORDER BY name ASC
+    `;
+
+    const grades = data.rows;
+    return grades;
+  } catch (err) {
+    console.error('Error en la base de datos:', err);
+    throw new Error('No se pudieron recuperar todos los grados.');
+  }
+}
+
+export async function fetchGradesPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM grades
+    WHERE
+      name ILIKE ${`%${query}%`}
+    `;
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
   } catch (error) {
-    console.error('Failed to fetch user:', error);
-    throw new Error('Failed to fetch user.');
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudieron recuperar el numero de grados.');
+  }
+}
+
+export async function fetchFilteredGrades(query: string, currentPage: number) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const grades = await sql<Grade>`
+      SELECT
+        id,
+        name
+      FROM grades
+      WHERE
+        name ILIKE ${`%${query}%`}
+      ORDER BY name ASC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return grades.rows;
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudieron recuperar los grados.');
+  }
+}
+
+export async function fetchGradeById(id: string) {
+  noStore();
+  try {
+    const data = await sql<Grade>`
+      SELECT id, name
+      FROM grades
+      WHERE id = ${id};
+    `;
+
+    const grade = data.rows.map((grade) => ({
+      ...grade,
+    }));
+
+    return grade[0];
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudo recuperar el grado.');
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function fetchNotesPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM notes
+    `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudieron recuperar el numero de notas.');
+  }
+}
+
+export async function fetchFilteredNotes(query: string, currentPage: number) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const notes = await sql<Note>`
+    SELECT notes.id as id, CONCAT(users.name, ' ', users.lastname) AS user_name, subjects.name AS subject_name, grades.name AS grade_name, assignment_student.year AS year, notes.period_1 AS period_1, notes.period_2 AS period_2, notes.final AS final
+    FROM assignment_student, users, subjects,  grades, notes
+    WHERE users.id = assignment_student.user_id 
+    AND subjects.id = assignment_student.subject_id
+    AND grades.id = assignment_student.grade_id
+    AND notes.assignment_student_id = assignment_student.id
+    AND (users.name ILIKE ${`%${query}%`} OR
+    subjects.name ILIKE ${`%${query}%`} OR
+    grades.name ILIKE ${`%${query}%`} OR
+    assignment_student.year::text ILIKE ${`%${query}%`})
+    ORDER BY users.name ASC
+    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+    
+    return notes.rows;
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudieron recuperar las notas.');
+  }
+}
+
+export async function fetchNotesByStudent(id: string) {
+  noStore();
+  try {
+    const notesByStudent = await sql<Note>`
+    SELECT notes.id AS id, CONCAT(users.name, ' ',users.lastname) AS user_id, subjects.name AS subject_id, grades.name AS grade_id, assignment_student.year AS year, notes.period_1, notes.period_2, notes.final
+    FROM users, subjects, grades, notes, assignment_student
+    WHERE notes.assignment_student_id = assignment_student.id 
+    AND users.id = assignment_student.user_id 
+    AND subjects.id = assignment_student.subject_id 
+    AND grades.id = assignment_student.grade_id
+    AND notes.id = ${id} 
+    ORDER BY subjects.id ASC
+    `;
+
+    return notesByStudent.rows;
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudieron recuperar las notas.');
+  }
+}
+
+export async function fetchNoteById(id: string) {
+  noStore();
+  try {
+    const data = await sql<Note>`
+    SELECT notes.id AS id, CONCAT(users.name, ' ',users.lastname) AS user_id, subjects.name AS subject_id, grades.name AS grade_id, assignment_student.year AS year, notes.period_1, notes.period_2, notes.final
+    FROM users, subjects, grades, notes, assignment_student
+    WHERE notes.assignment_student_id = assignment_student.id 
+    AND users.id = assignment_student.user_id 
+    AND subjects.id = assignment_student.subject_id 
+    AND grades.id = assignment_student.grade_id
+    AND notes.id = ${id};
+    `;
+
+    const note = data.rows.map((note) => ({
+      ...note,
+    }));
+
+    return note[0];
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudo recuperar la nota.');
+  }
+}
+
+export async function fetchFilteredAssignmentsStudentGrade(
+  query: string,
+  currentPage: number,
+) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const studentgrade = await sql<AssignmentsStudentGrade>`
+      SELECT assignment_student.id AS id, CONCAT(users.name, ' ', users.lastname) AS user_id, subjects.name AS subject_id, grades.name AS grade_id, assignment_student.year AS year
+      FROM users
+      INNER JOIN assignment_student ON users.id = assignment_student.user_id
+      INNER JOIN grades ON grades.id = assignment_student.grade_id
+      INNER JOIN subjects ON subjects.id = assignment_student.subject_id
+      WHERE users.role = 'Estudiante'
+      AND users.name ILIKE ${`%${query}%`} OR
+      grades.name ILIKE ${`%${query}%`} OR
+      subjects.name ILIKE ${`%${query}%`} OR
+      assignment_student.year::text ILIKE ${`%${query}%`}
+      ORDER BY users.name ASC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return studentgrade.rows;
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error(
+      'No se pudieron recuperar las asignaciones del estudiante.',
+    );
+  }
+}
+
+export async function fetchAssignmentsStudentGradePages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM users
+    INNER JOIN assignment_student ON users.id = assignment_student.user_id
+    INNER JOIN grades ON grades.id = assignment_student.grade_id
+    WHERE users.role = 'Estudiante'
+    AND users.name ILIKE ${`%${query}%`} OR
+    grades.name ILIKE ${`%${query}%`}
+    `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error(
+      'No se pudieron recuperar el numero de las asignaciones del estudiante.',
+    );
+  }
+}
+
+export async function fetchstudentGradeById(id: string) {
+  noStore();
+  try {
+    const data = await sql<AssignmentsStudentGrade>`
+      SELECT id, user_id, grade_id, year
+      FROM assignment_student
+      WHERE id = ${id};
+    `;
+
+    const studentgrade = data.rows.map((studentgrade) => ({
+      ...studentgrade,
+    }));
+
+    return studentgrade[0];
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error(
+      'No se pudieron recuperar la asignaciones del estudiante.',
+    );
+  }
+}
+
+export async function fetchFilteredAssignmentsTeacherSubject(
+  query: string,
+  currentPage: number,
+) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const teacherSubject = await sql<AssignmentsTeacherSubject>`
+      SELECT assignments_teacher_grade_subject.id AS id, CONCAT(users.name, ' ', users.lastname) AS user_id, subjects.name AS subject_id, grades.name AS grade_id, assignments_teacher_grade_subject.year AS year
+      FROM assignments_teacher_grade_subject
+      INNER JOIN users ON users.id = assignments_teacher_grade_subject.user_id
+      INNER JOIN grades ON grades.id = assignments_teacher_grade_subject.grade_id
+      INNER JOIN subjects ON subjects.id = assignments_teacher_grade_subject.subject_id
+      WHERE users.role = 'Docente'
+      AND users.name ILIKE ${`%${query}%`} OR
+      grades.name ILIKE ${`%${query}%`} OR
+      subjects.name ILIKE ${`%${query}%`} OR
+      assignments_teacher_grade_subject.year::text ILIKE ${`%${query}%`}
+      ORDER BY users.name ASC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return teacherSubject.rows;
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error(
+      'No se pudieron recuperar las asignaciones del docente.',
+    );
+  }
+}
+
+export async function fetchAssignmentsTeacherSubjectPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM users
+    INNER JOIN assignments_teacher_grade_subject ON users.id = assignments_teacher_grade_subject.user_id
+    INNER JOIN grades ON grades.id = assignments_teacher_grade_subject.grade_id
+    WHERE users.role = 'Docente'
+    AND users.name ILIKE ${`%${query}%`} OR
+    grades.name ILIKE ${`%${query}%`}
+    `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error(
+      'No se pudieron recuperar el numero de las asignaciones estudiante - grado.',
+    );
+  }
+}
+
+export async function fetchTeacherSubjectById(id: string) {
+  noStore();
+  try {
+    const data = await sql<AssignmentsTeacherSubject>`
+      SELECT id, user_id, subject_id, grade_id, year
+      FROM assignments_teacher_grade_subject
+      WHERE id = ${id};
+    `;
+
+    const teachersSubjects = data.rows.map((teacherSubject) => ({
+      ...teacherSubject,
+    }));
+
+    return teachersSubjects[0];
+  } catch (error) {
+    console.error('Error en la base de datos:', error);
+    throw new Error('No se pudo recuperar la asignacion docente - asignatura.');
+  }
+}
+
+export async function fetchGradesStudents() {
+  noStore();
+  try {
+    const data = await sql<AssignmentsStudentGrade>`
+    SELECT assignment_student.id AS id, assignment_student.user_id AS user_id, CONCAT(users.name, ' ', users.lastname) AS user_name, subjects.id AS subject_id, subjects.name AS subject_name, grades.id AS grade_id, grades.name AS grade_name, assignment_student.year AS year 
+    FROM assignment_student 
+    INNER JOIN users ON users.id = assignment_student.user_id 
+    INNER JOIN subjects ON subjects.id = assignment_student.subject_id 
+    INNER JOIN grades ON grades.id = assignment_student.grade_id
+    `;
+
+    const gradesStudents = data.rows;
+    return gradesStudents;
+  } catch (err) {
+    console.error('Error en la base de datos:', err);
+    throw new Error(
+      'No se pudieron recuperar todas las asignaciones estudiante - grado.',
+    );
+  }
+}
+
+export async function fetchGradesSubjects() {
+  noStore();
+  try {
+    const data = await sql<AssignmentsTeacherSubject>`
+      SELECT assignments_teacher_grade_subject.id AS id, subjects.id AS subject_id, subjects.name AS subject_name, grades.id AS grade_id, assignments_teacher_grade_subject.year AS year
+      FROM assignments_teacher_grade_subject
+      INNER JOIN grades ON grades.id = assignments_teacher_grade_subject.grade_id
+      INNER JOIN subjects ON subjects.id = assignments_teacher_grade_subject.subject_id
+    `;
+
+    const gradesSubjects = data.rows;
+    return gradesSubjects;
+  } catch (err) {
+    console.error('Error en la base de datos:', err);
+    throw new Error(
+      'No se pudieron recuperar todas las asignaciones docente - asignatura.',
+    );
   }
 }

@@ -2,47 +2,62 @@
 import {
   UserGroupIcon,
   HomeIcon,
-  DocumentDuplicateIcon, PencilSquareIcon, BookOpenIcon, AcademicCapIcon, ArrowsRightLeftIcon
+  PencilSquareIcon,
+  BookOpenIcon,
+  AcademicCapIcon,
+  ArrowsRightLeftIcon,
 } from '@heroicons/react/24/outline';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import clsx from 'clsx';
 
-// Map of links to display in the side navigation.
-// Depending on the size of the application, this would be stored in a database.
+// Enlaces para mostrar en la navegación lateral
+// Dependiendo del tamaño de la aplicación, esta se almacenaría en una base de datos.
 const links = [
   { name: 'Inicio', href: '/dashboard', icon: HomeIcon },
   { name: 'Usuarios', href: '/dashboard/users', icon: UserGroupIcon },
   { name: 'Asignaturas', href: '/dashboard/subjects', icon: BookOpenIcon },
   { name: 'Grados', href: '/dashboard/grades', icon: AcademicCapIcon },
-  { name: 'Notas', href: '/dashboard/notes  ', icon: PencilSquareIcon },
-  { name: 'Asignaciones', href: '/dashboard/assignments  ', icon: ArrowsRightLeftIcon },
-  { name: 'Invoices', href: '/dashboard/invoices', icon: DocumentDuplicateIcon },
-  { name: 'Customers', href: '/dashboard/customers', icon: UserGroupIcon },
+  { name: 'Notas', href: '/dashboard/notes', icon: PencilSquareIcon },
+  { name: 'Asignaciones', href: '/dashboard/assignments', icon: ArrowsRightLeftIcon },
 ];
 
-export default function NavLinks() {
+const linksTeachersAnsStudents = [
+  { name: 'Inicio', href: '/dashboard', icon: HomeIcon },
+  { name: 'Notas', href: '/dashboard/notes', icon: PencilSquareIcon },
+];
+
+export default function NavLinks({session}:{session:string | undefined}) {
+   
   const pathname = usePathname();
+
+  // Determinar qué conjunto de enlaces mostrar según el rol del usuario
+  const linksToDisplay = session === 'Administrador' ? links : linksTeachersAnsStudents;
+
   return (
+    
     <>
-      {links.map((link) => {
+      {linksToDisplay.map((link) => {
         const LinkIcon = link.icon;
         return (
           <Link
             key={link.name}
             href={link.href}
             className={clsx(
-              'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-primary md:flex-none md:justify-start md:p-2 md:px-3',
+              'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-50 p-3 text-sm font-medium hover:bg-500 md:flex-none md:justify-start md:p-2 md:px-3',
               {
-                'bg-sky-100 text-primary': pathname === link.href,
+                'bg-500 text-white': pathname === link.href,
               },
             )}
           >
             <LinkIcon className="w-6" />
             <p className="hidden md:block">{link.name}</p>
           </Link>
+
         );
-      })}
+      })}  
     </>
   );
+  
+
 }
