@@ -40,10 +40,9 @@ export default function generatePDF({notes}:{notes:Note[]}) {
     y += 10; // Incrementar la posición Y para el contenido de la tabla
     notes.forEach((note, index) => {
       doc.text(note.subject_id, 10, y + index * 10);
-      doc.text(note.note_1.toString(), 50, y + index * 10);
-      doc.text(note.note_2.toString(), 90, y + index * 10);
-      doc.text(note.note_3.toString(), 130, y + index * 10);
-      doc.text(((note.note_1+note.note_2+note.note_3)/3).toString(), 170, y + index * 10);
+      doc.text(note.period_1.toString(), 50, y + index * 10);
+      doc.text(note.period_2.toString(), 90, y + index * 10);
+      doc.text(note.final.toString(), 170, y + index * 10);
     });
 
     //Guardar el PDF con un nombre especifico
