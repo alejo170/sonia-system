@@ -37,10 +37,7 @@ export default async function AssignmentsStudentGradeTable({
                     <p className="text-sm text-gray-500">
                       {assignment.grade_id}
                     </p>
-                    <p className="text-sm text-gray-500">
-                      {assignment.year}
-                    </p>
-                   
+                    <p className="text-sm text-gray-500">{assignment.year}</p>
                   </div>
                   <div className="flex justify-end gap-2">
                     <UpdateAssignmentsStudentGrade id={assignment.id} />

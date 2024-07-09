@@ -9,28 +9,30 @@ import {
   AssignmentsTeacherSubjectTableSkeleton,
 } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchAssignmentsStudentGradePages, fetchAssignmentsTeacherSubjectPages } from '@/app/lib/data';
+import {
+  fetchAssignmentsStudentGradePages,
+  fetchAssignmentsTeacherSubjectPages,
+} from '@/app/lib/data';
 import { Tabs, Tab } from '@/app/ui/tabs';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
- title: 'Asignaciones',
+  title: 'Asignaciones',
 };
 
-export default async function Page(
-{
+export default async function Page({
   searchParams,
 }: {
   searchParams?: {
     query?: string;
     page?: string;
   };
-}
-) {
+}) {
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
   const totalPagesStudentGrade = await fetchAssignmentsStudentGradePages(query);
-  const totalPagesTeacherSubject = await fetchAssignmentsTeacherSubjectPages(query);
+  const totalPagesTeacherSubject =
+    await fetchAssignmentsTeacherSubjectPages(query);
 
   return (
     <div className="w-full">

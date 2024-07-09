@@ -5,7 +5,7 @@ import {
   UserCircleIcon,
   BookOpenIcon,
   PencilSquareIcon,
-  AcademicCapIcon
+  AcademicCapIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
@@ -25,48 +25,47 @@ export default function EditNoteForm({
   return (
     <form action={dispatch}>
       <div className="rounded-md bg-50 p-4 md:p-6">
-        
-        {/* Year */}
+        {/* Año */}
         <div className="mb-4">
           <label htmlFor="year" className="mb-2 block text-sm font-medium">
             Año
           </label>
           <div className="relative">
-          <span className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500">
+            <span className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500">
               {notes.year}
             </span>
             <input
               id="year"
               name="year"
-              type='hidden'
+              type="hidden"
               defaultValue={notes.year}
             />
-                     
+
             <AcademicCapIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
         </div>
 
-        {/* Grade Name */}
+        {/* Grado */}
         <div className="mb-4">
           <label htmlFor="grade" className="mb-2 block text-sm font-medium">
             Grado
           </label>
           <div className="relative">
-          <span className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500">
+            <span className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500">
               {notes.grade_id}
             </span>
             <input
               id="grade"
               name="gradeId"
-              type='hidden'
+              type="hidden"
               defaultValue={notes.grade_id}
             />
-                     
+
             <AcademicCapIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
         </div>
 
-        {/* Subject Name */}
+        {/* Asignatura */}
         <div className="mb-4">
           <label htmlFor="subject" className="mb-2 block text-sm font-medium">
             Asignatura
@@ -78,14 +77,14 @@ export default function EditNoteForm({
             <input
               id="subject"
               name="subjectId"
-              type='hidden'
+              type="hidden"
               defaultValue={notes.subject_id}
             />
             <BookOpenIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
         </div>
 
-        {/* Student Name */}
+        {/* Estudiante */}
         <div className="mb-4">
           <label htmlFor="student" className="mb-2 block text-sm font-medium">
             Estudiante
@@ -99,11 +98,9 @@ export default function EditNoteForm({
               name="studentId"
               type="hidden"
               defaultValue={notes.user_id}
-              
             />
             <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
-          
         </div>
 
         {/* Nota del primer corte */}
@@ -168,7 +165,6 @@ export default function EditNoteForm({
 
         {/* Id asignacion estudiante */}
         <div className="mb-4">
-          
           <div className="relative mt-2 rounded-md">
             <div className="relative">
               <input
@@ -177,7 +173,6 @@ export default function EditNoteForm({
                 defaultValue={notes.id}
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               />
-              
             </div>
           </div>
         </div>

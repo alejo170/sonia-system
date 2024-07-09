@@ -35,7 +35,9 @@ export function DeleteSubjects({ id }: { id: string }) {
 
   if (state.message) {
     return (
-      <span className="rounded-md border p-2 text-red-500">{state.message}</span>
+      <span className="rounded-md border p-2 text-red-500">
+        {state.message}
+      </span>
     );
   }
 

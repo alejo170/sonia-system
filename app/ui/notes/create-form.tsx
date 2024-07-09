@@ -14,14 +14,18 @@ import { createNote } from '@/app/lib/actions';
 import { SetStateAction, useState } from 'react';
 import { useFormState } from 'react-dom';
 
-export default function Form({ gradesStudents }: { gradesStudents: AssignmentsStudentGrade[] }) {
+export default function Form({
+  gradesStudents,
+}: {
+  gradesStudents: AssignmentsStudentGrade[];
+}) {
   const initialState = { message: null, errors: {} };
   const [state, dispatch] = useFormState(createNote, initialState);
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedGrade, setSelectedGrade] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedStudent, setSelectedStudent] = useState('');
-    
+
   const handleYearChange = (e: {
     target: { value: SetStateAction<string> };
   }) => {
@@ -44,42 +48,59 @@ export default function Form({ gradesStudents }: { gradesStudents: AssignmentsSt
   }) => {
     setSelectedSubject(e.target.value);
     setSelectedStudent('');
-    
   };
 
-  const handleStudentChange = (e: { target: { value: SetStateAction<string> }; }) => {
+  const handleStudentChange = (e: {
+    target: { value: SetStateAction<string> };
+  }) => {
     setSelectedStudent(e.target.value);
   };
 
-  const uniqueYears = Array.from(new Set(gradesStudents.map(student => student.year)));
-  
-  const filteredGrades = Array.from(new Set(
-    gradesStudents
-      .filter(student => student.year === Number(selectedYear))
-      .map(student => student.grade_name)
-  )).map(gradeName => {
-    return gradesStudents.find(student => student.grade_name === gradeName);
+  const uniqueYears = Array.from(
+    new Set(gradesStudents.map((student) => student.year)),
+  );
+
+  const filteredGrades = Array.from(
+    new Set(
+      gradesStudents
+        .filter((student) => student.year === Number(selectedYear))
+        .map((student) => student.grade_name),
+    ),
+  ).map((gradeName) => {
+    return gradesStudents.find((student) => student.grade_name === gradeName);
   });
 
-  const filteredSubjects = Array.from(new Set(
-    gradesStudents
-    .filter((student) => { return student.year === Number(selectedYear) && student.grade_id === selectedGrade;
-   }).map(student => student.subject_name)
-  )).map(gradeName => {
-    return gradesStudents.find(student => student.subject_name === gradeName);
+  const filteredSubjects = Array.from(
+    new Set(
+      gradesStudents
+        .filter((student) => {
+          return (
+            student.year === Number(selectedYear) &&
+            student.grade_id === selectedGrade
+          );
+        })
+        .map((student) => student.subject_name),
+    ),
+  ).map((gradeName) => {
+    return gradesStudents.find((student) => student.subject_name === gradeName);
   });
 
   const filteredStudents = gradesStudents.filter((student) => {
-    return student.year === Number(selectedYear) && student.grade_id === selectedGrade && student.subject_id === selectedSubject;
-   });
+    return (
+      student.year === Number(selectedYear) &&
+      student.grade_id === selectedGrade &&
+      student.subject_id === selectedSubject
+    );
+  });
 
   // Encontrar el assignmentStudentId para el estudiante seleccionado
-  const selectedStudentData = filteredStudents.find(student => student.user_id === selectedStudent);
-     
+  const selectedStudentData = filteredStudents.find(
+    (student) => student.user_id === selectedStudent,
+  );
+
   return (
     <form action={dispatch}>
       <div className="rounded-md bg-50 p-4 md:p-6">
-
         {/* Año */}
         <div className="mb-4">
           <label htmlFor="year" className="mb-2 block text-sm font-medium">
@@ -103,7 +124,6 @@ export default function Form({ gradesStudents }: { gradesStudents: AssignmentsSt
                   {year}
                 </option>
               ))}
-              
             </select>
             <CalendarDaysIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
@@ -117,7 +137,7 @@ export default function Form({ gradesStudents }: { gradesStudents: AssignmentsSt
           </div>
         </div>
 
-        {/* Grade Name */}
+        {/* Grado */}
         <div className="mb-4">
           <label htmlFor="grade" className="mb-2 block text-sm font-medium">
             Grado
@@ -129,7 +149,7 @@ export default function Form({ gradesStudents }: { gradesStudents: AssignmentsSt
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               value={selectedGrade}
               onChange={handleGradeChange}
-              disabled={!selectedYear} // Deshabilitar si no se ha seleccionado un año
+              disabled={!selectedYear} // Se deshabilita si no se ha seleccionado un año
             >
               <option value="" disabled>
                 Seleccione un grado
@@ -152,7 +172,7 @@ export default function Form({ gradesStudents }: { gradesStudents: AssignmentsSt
           </div>
         </div>
 
-        {/* Subject Name */}
+        {/* Asignatura */}
         <div className="mb-4">
           <label htmlFor="subject" className="mb-2 block text-sm font-medium">
             Asignatura
@@ -188,7 +208,7 @@ export default function Form({ gradesStudents }: { gradesStudents: AssignmentsSt
           </div>
         </div>
 
-        {/* Student Name */}
+        {/* Estudiante */}
         <div className="mb-4">
           <label htmlFor="student" className="mb-2 block text-sm font-medium">
             Estudiante
@@ -283,7 +303,6 @@ export default function Form({ gradesStudents }: { gradesStudents: AssignmentsSt
 
         {/* Id asignacion estudiante */}
         <div className="mb-4">
-          
           <div className="relative mt-2 rounded-md">
             <div className="relative">
               <input
@@ -291,67 +310,10 @@ export default function Form({ gradesStudents }: { gradesStudents: AssignmentsSt
                 type="hidden"
                 value={selectedStudentData?.id}
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-                
               />
-              
             </div>
           </div>
         </div>
-        {/* A partir de aqui vamos a realisar la tabla para asignar notas masivamente */}
-        {/* <table className="hidden min-w-full text-gray-900 md:table">
-            <thead className="rounded-lg text-left text-sm font-normal">
-              <tr>
-                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                  Estudiante
-                </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Corte 1
-                </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Corte 2
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white">
-              {filteredStudents.map((student) => (
-                <tr
-                  key={student.user_id}
-                  className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
-                >
-                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <div className="flex items-center gap-3">
-                      <p>{student.user_name}</p> 
-                    </div>
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    <input
-                      name="period_1"
-                      type="number"
-                      step={0.1}
-                      placeholder="Ingrese la nota del primer corte"
-                      className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-                      aria-describedby="period_1-error"
-                    />
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                  <input
-                      name="period_2"
-                      type="number"
-                      step={0.1}
-                      placeholder="Ingrese la nota del segundo corte"
-                      className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-                      aria-describedby="period_2-error"
-                    />
-                  </td>
-                  
-                  
-                </tr>
-              ))}
-            </tbody>
-          </table> */}
-        
-        {/* Aqui termina el codigo        */}
-
 
         {state.message ? (
           <div aria-live="polite" className="my-2 text-sm text-red-500">

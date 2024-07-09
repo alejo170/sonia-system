@@ -31,9 +31,10 @@ export default async function Page({
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <Search placeholder="Buscar..." />
-        {session?.user.role === 'Administrador' || session?.user.role === 'Docente' ?
-        <CreateNotes />
-        : null }
+        {session?.user.role === 'Administrador' ||
+        session?.user.role === 'Docente' ? (
+          <CreateNotes />
+        ) : null}
       </div>
       <Suspense key={query + currentPage} fallback={<NotesTableSkeleton />}>
         <Table query={query} currentPage={currentPage} />

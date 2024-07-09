@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-//const bcrypt = require('bcrypt'); Revisar si funciona
 import bcrypt from 'bcrypt';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
@@ -17,17 +16,15 @@ const UserFormSchema = z.object({
   document_type: z.string({
     invalid_type_error: 'Por favor seleccione un tipo de documento.',
   }),
-  document_number: z
-    .string()
-    .regex(/^[0-9]+$/, { message: 'Por favor digite un número de documento válido.' }),
-  phone: z
-    .string()
-    .regex(/^[0-9]+$/, { message: 'Por favor digite un número de teléfono válido.' }),
-    
+  document_number: z.string().regex(/^[0-9]+$/, {
+    message: 'Por favor digite un número de documento válido.',
+  }),
+  phone: z.string().regex(/^[0-9]+$/, {
+    message: 'Por favor digite un número de teléfono válido.',
+  }),
+
   address: z.string().min(1, { message: 'Por favor digite una dirección' }),
-  email: z
-    .string()
-    .email('Por favor digite un email válido.'),
+  email: z.string().email('Por favor digite un email válido.'),
   password: z.string().min(1, { message: 'Por favor digite un password' }),
   role: z.enum(['Administrador', 'Docente', 'Estudiante'], {
     invalid_type_error: 'Por favor seleccione un rol.',
@@ -51,29 +48,26 @@ const GradeFormSchema = z.object({
 const NoteFormSchema = z.object({
   id: z.string(),
   assignment_student_id: z.string(),
-  year: z.coerce.number()
-    .min(1, { message: 'Por favor seleccione un año',
-  }),
+  year: z.coerce.number().min(1, { message: 'Por favor seleccione un año' }),
   grade_id: z.string({
     invalid_type_error: 'Por favor seleccione un grado.',
   }),
   subject_id: z.string({
     invalid_type_error: 'Por favor seleccione una asignatura.',
-    }),
+  }),
   user_id: z.string({
     invalid_type_error: 'Por favor seleccione un estudiante.',
   }),
   period_1: z.coerce
-  .number()
-  .gte(1, { message: 'Por favor digite una nota mayor o igual que 0.' })
-  .lte(10, { message: 'Por favor digite una nota menor o igual que 10.' }),
+    .number()
+    .gte(1, { message: 'Por favor digite una nota mayor o igual que 0.' })
+    .lte(10, { message: 'Por favor digite una nota menor o igual que 10.' }),
 
   period_2: z.coerce
     .number()
     .gte(1, { message: 'Por favor digite una nota mayor o igual que 0.' })
     .lte(10, { message: 'Por favor digite una nota menor o igual que 10.' }),
-  final: z.coerce
-    .number()
+  final: z.coerce.number(),
 });
 
 const AssignmentsStudentGradeFormSchema = z.object({
@@ -87,9 +81,7 @@ const AssignmentsStudentGradeFormSchema = z.object({
   grade_id: z.string({
     invalid_type_error: 'Por favor seleccione un grado.',
   }),
-  year: z.coerce.number()
-    .min(1, { message: 'Por favor seleccione un año',
-  }),
+  year: z.coerce.number().min(1, { message: 'Por favor seleccione un año' }),
 });
 
 const AssignmentsTeacherSubjectFormSchema = z.object({
@@ -103,9 +95,7 @@ const AssignmentsTeacherSubjectFormSchema = z.object({
   grade_id: z.string({
     invalid_type_error: 'Por favor seleccione un grado.',
   }),
-  year: z.coerce.number()
-  .min(1, { message: 'Por favor seleccione un año',
-}),
+  year: z.coerce.number().min(1, { message: 'Por favor seleccione un año' }),
 });
 
 const CreateUser = UserFormSchema.omit({ id: true, date: true });
@@ -233,9 +223,7 @@ export async function createUser(prevState: StateUser, formData: FormData) {
     INSERT INTO users (name, lastname, document_type, document_number, phone, address, email, password, role)
     VALUES (${name}, ${lastname}, ${document_type}, ${document_number}, ${phone}, ${address}, ${email}, ${hashedPassword}, ${role})
     `;
-    
   } catch (error) {
-    
     // Si ocurre un error en la base de datos, devolverá un error más específico
     return {
       message: 'No se puede crear el usuario porque ya existe ese email.',
@@ -251,7 +239,6 @@ export async function updateUser(
   prevState: StateUser,
   formData: FormData,
 ) {
-  // Validando los campos del formulario usando Zod
   const validatedFields = UpdateUser.safeParse({
     name: formData.get('name'),
     lastname: formData.get('lastname'),
@@ -264,7 +251,6 @@ export async function updateUser(
     role: formData.get('role'),
   });
 
-  // Si la validación del formulario falla, devuelva los errores con anticipación. De lo contrario, continúa.
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -321,9 +307,8 @@ export async function createSubject(
   const validatedFields = CreateSubject.safeParse({
     name: formData.get('name'),
   });
-  
+
   if (!validatedFields.success) {
-    
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Campos faltantes. No se puede crear la asignatura.',
@@ -337,12 +322,9 @@ export async function createSubject(
     INSERT INTO subjects (name)
     VALUES (${name})
     `;
-    
   } catch (error) {
-    
     return {
       message: 'No se puede crear porque ya existe esa asignatura.',
-      
     };
   }
   revalidatePath('/dashboard/subjects');
@@ -384,16 +366,13 @@ export async function updateSubject(
 }
 
 export async function deleteSubject(id: string) {
-  
   try {
     await sql`DELETE FROM subjects WHERE id = ${id}`;
     revalidatePath('/dashboard/subjects');
     return { message: 'Asignatura eliminada.' };
   } catch (error) {
-    
     return {
       message: 'Esta asociado a una asignación',
-      
     };
   }
 }
@@ -405,7 +384,6 @@ export async function createGrade(prevState: StateGrade, formData: FormData) {
   });
 
   if (!validatedFields.success) {
-    
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Campos faltantes. No se puede crear el grado.',
@@ -483,9 +461,8 @@ export async function createNote(prevState: StateNote, formData: FormData) {
     subject_id: formData.get('subjectId'),
     user_id: formData.get('studentId'),
   });
-   
+
   if (!validatedFields.success) {
-    
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Campos faltantes. No se puede asignar la Nota.',
@@ -493,16 +470,19 @@ export async function createNote(prevState: StateNote, formData: FormData) {
   }
 
   const { assignment_student_id, period_1, period_2 } = validatedFields.data;
-  
+
   try {
     await sql`
     INSERT INTO notes (assignment_student_id, period_1, period_2, final)
-    VALUES (${assignment_student_id}, ${period_1}, ${period_2}, ${(period_1 + period_2)/2})
+    VALUES (${assignment_student_id}, ${period_1}, ${period_2}, ${
+      (period_1 + period_2) / 2
+    })
     `;
-    
   } catch (error) {
-    
-    return { message: 'No se puede asignar porque ese usuario ya tiene nota en esa asignatura.' };
+    return {
+      message:
+        'No se puede asignar porque ese usuario ya tiene nota en esa asignatura.',
+    };
   }
   revalidatePath('/dashboard/notes');
   redirect('/dashboard/notes');
@@ -523,7 +503,7 @@ export async function updateNote(
     subject_id: formData.get('subjectId'),
     user_id: formData.get('studentId'),
   });
-  
+
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -536,11 +516,16 @@ export async function updateNote(
   try {
     await sql`
     UPDATE notes
-    SET period_1 = ${period_1}, period_2 = ${period_2}, final = ${(period_1+period_2)/2}
+    SET period_1 = ${period_1}, period_2 = ${period_2}, final = ${
+      (period_1 + period_2) / 2
+    }
     WHERE id = ${id}
     `;
   } catch (error) {
-    return { message: 'No se puede editar porque ese usuario ya tiene nota en esa asignatura.' };
+    return {
+      message:
+        'No se puede editar porque ese usuario ya tiene nota en esa asignatura.',
+    };
   }
 
   revalidatePath('/dashboard/notes');
@@ -568,7 +553,7 @@ export async function createAssignmentsStudentGrade(
     grade_id: formData.get('gradeId'),
     year: formData.get('year'),
   });
-  
+
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -585,13 +570,12 @@ export async function createAssignmentsStudentGrade(
     VALUES (${user_id}, ${subject_id}, ${grade_id}, ${year})
     `;
   } catch (error) {
-    
     return {
       message:
         'No se puede crear porque ya existe ese estudiante en esa asignatura, grado y año.',
     };
   }
-  
+
   revalidatePath('/dashboard/assignments?tab=Estudiante');
   redirect('/dashboard/assignments?tab=Estudiante');
 }
@@ -607,7 +591,7 @@ export async function updateAssignmentsStudentGrade(
     grade_id: formData.get('gradeId'),
     year: formData.get('year'),
   });
-  
+
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -642,8 +626,7 @@ export async function deleteAssignmentsStudentGrade(id: string) {
     return { message: 'Asignacion estudiante eliminada.' };
   } catch (error) {
     return {
-      message:
-        'Hay nota',
+      message: 'Hay nota',
     };
   }
 }
@@ -659,7 +642,7 @@ export async function createAssignmentsTeacherSubject(
     grade_id: formData.get('gradeId'),
     year: formData.get('year'),
   });
-  
+
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -675,9 +658,7 @@ export async function createAssignmentsTeacherSubject(
     INSERT INTO assignments_teacher_grade_subject (user_id, subject_id, grade_id, year)
     VALUES (${user_id}, ${subject_id}, ${grade_id}, ${year})
     `;
-    
   } catch (error) {
-    
     return {
       message:
         'No se puede crear porque ya existe ese docente en esa asignatura, grado y año.',
@@ -699,7 +680,7 @@ export async function updateAssignmentsTeacherSubject(
     grade_id: formData.get('gradeId'),
     year: formData.get('year'),
   });
-  
+
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -717,7 +698,6 @@ export async function updateAssignmentsTeacherSubject(
     WHERE id = ${id}
     `;
   } catch (error) {
-    
     return {
       message:
         'No se puede actualizar porque ya existe ese docente en esa asignatura, grado y año.',
@@ -734,8 +714,7 @@ export async function deleteAssignmentsTeacherSubject(id: string) {
     return { message: 'Delete AssignmentsTeacherSubject.' };
   } catch (error) {
     return {
-      message:
-        'No se puede eliminar.',
+      message: 'No se puede eliminar.',
     };
   }
 }

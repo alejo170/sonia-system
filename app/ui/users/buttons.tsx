@@ -29,17 +29,18 @@ export function UpdateUsers({ id }: { id: string }) {
 }
 
 export function DeleteUsers({ id }: { id: string }) {
-
   const initialState = { message: '', errors: {} };
   const deleteUserWithId = deleteUser.bind(null, id);
   const [state, dispatch] = useFormState(deleteUserWithId, initialState);
 
   if (state.message) {
     return (
-      <span className="rounded-md border p-2 text-red-500">{state.message}</span>
+      <span className="rounded-md border p-2 text-red-500">
+        {state.message}
+      </span>
     );
   }
-  
+
   return (
     <form action={dispatch}>
       <button className="rounded-md border p-2 hover:bg-100">

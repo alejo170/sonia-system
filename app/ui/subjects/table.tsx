@@ -9,7 +9,7 @@ export default async function SubjectsTable({
   currentPage: number;
 }) {
   const subjects = await fetchFilteredSubjects(query, currentPage);
-  
+
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">

@@ -11,7 +11,7 @@ export default async function Page() {
   const students = await fetchStudents();
   const subjects = await fetchSubjects();
   const grades = await fetchGrades();
- 
+
   return (
     <main>
       <Breadcrumbs
@@ -24,7 +24,7 @@ export default async function Page() {
           },
         ]}
       />
-      <Form students={students} grades={grades} subjects={subjects}/>
+      <Form students={students} grades={grades} subjects={subjects} />
     </main>
   );
 }

@@ -12,14 +12,16 @@ import Link from 'next/link';
 import clsx from 'clsx';
 
 // Enlaces para mostrar en la navegación lateral
-// Dependiendo del tamaño de la aplicación, esta se almacenaría en una base de datos.
 const links = [
   { name: 'Inicio', href: '/dashboard', icon: HomeIcon },
   { name: 'Usuarios', href: '/dashboard/users', icon: UserGroupIcon },
   { name: 'Asignaturas', href: '/dashboard/subjects', icon: BookOpenIcon },
   { name: 'Grados', href: '/dashboard/grades', icon: AcademicCapIcon },
-  { name: 'Notas', href: '/dashboard/notes', icon: PencilSquareIcon },
-  { name: 'Asignaciones', href: '/dashboard/assignments', icon: ArrowsRightLeftIcon },
+  {
+    name: 'Asignaciones',
+    href: '/dashboard/assignments',
+    icon: ArrowsRightLeftIcon,
+  },
 ];
 
 const linksTeachersAnsStudents = [
@@ -27,15 +29,14 @@ const linksTeachersAnsStudents = [
   { name: 'Notas', href: '/dashboard/notes', icon: PencilSquareIcon },
 ];
 
-export default function NavLinks({session}:{session:string | undefined}) {
-   
+export default function NavLinks({ session }: { session: string | undefined }) {
   const pathname = usePathname();
 
   // Determinar qué conjunto de enlaces mostrar según el rol del usuario
-  const linksToDisplay = session === 'Administrador' ? links : linksTeachersAnsStudents;
+  const linksToDisplay =
+    session === 'Administrador' ? links : linksTeachersAnsStudents;
 
   return (
-    
     <>
       {linksToDisplay.map((link) => {
         const LinkIcon = link.icon;
@@ -53,11 +54,8 @@ export default function NavLinks({session}:{session:string | undefined}) {
             <LinkIcon className="w-6" />
             <p className="hidden md:block">{link.name}</p>
           </Link>
-
         );
-      })}  
+      })}
     </>
   );
-  
-
 }

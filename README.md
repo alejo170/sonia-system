@@ -1,5 +1,21 @@
-## Next.js App Router Course - Starter
+# SONIA
 
-This is the starter template for the Next.js App Router Course. It contains the starting code for the dashboard application.
+#### Descripción 📋
 
-For more information, see the [course curriculum](https://nextjs.org/learn) on the Next.js Website.
+Sonia es un proyecto creado para organizar, almacenar y gestionar las notas académicas de una institución educativa.
+
+Consta de 3 perfiles, para iniciar sesión:
+
+- Administrador: El usuario puede gestionar usuarios, asignaturas, grados, asignar estudiantes y docentes
+- Docente: El usuario puede gestionar las notas de los estudiantes
+- Estudiante: El usuario puede ver sus notas y descargarlas
+
+#### Tecnologías usadas 🔧
+
+- HTML
+- CSS
+- JavaScript
+- React
+- Tailwind
+- TypeScript
+- PostgreSQL

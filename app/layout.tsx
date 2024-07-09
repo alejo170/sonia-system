@@ -1,5 +1,4 @@
 import '@/app/global.css';
-//import './global.css'; // Arregla el warning: link preload
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -18,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body>{children}</body>
     </html>
   );

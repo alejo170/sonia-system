@@ -10,7 +10,7 @@ import {
   UserCircleIcon,
   BookOpenIcon,
   AcademicCapIcon,
-  CalendarDaysIcon
+  CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
@@ -41,7 +41,10 @@ export default function EditTeacherSubjectForm({
   // Generar opciones para los años
   const current_year = new Date().getFullYear();
   const start_year = current_year - 60;
-  const years = Array.from({ length: current_year - start_year }, (_, index) => current_year - index);  
+  const years = Array.from(
+    { length: current_year - start_year },
+    (_, index) => current_year - index,
+  );
 
   return (
     <form action={dispatch}>
@@ -60,7 +63,7 @@ export default function EditTeacherSubjectForm({
               aria-describedby="teacher-error"
             >
               <option value="" disabled>
-                Seleccione un estudiante
+                Seleccione un docente
               </option>
               {teachers.map((teacher) => (
                 <option key={teacher.id} value={teacher.id}>
@@ -148,7 +151,6 @@ export default function EditTeacherSubjectForm({
           </div>
         </div>
 
-        
         {/* Año */}
         <div className="mb-4">
           <label htmlFor="year" className="mb-2 block text-sm font-medium">
@@ -171,7 +173,6 @@ export default function EditTeacherSubjectForm({
                   {year}
                 </option>
               ))}
-              
             </select>
             <CalendarDaysIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
@@ -183,7 +184,7 @@ export default function EditTeacherSubjectForm({
                 </p>
               ))}
           </div>
-        </div>        
+        </div>
 
         {state.message ? (
           <div aria-live="polite" className="my-2 text-sm text-red-500">

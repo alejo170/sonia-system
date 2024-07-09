@@ -36,7 +36,12 @@ export default async function Page({ params }: { params: { id: string } }) {
           },
         ]}
       />
-      <Form studentGrade={studentGrade} students={students} subjects={subjects} grades={grades} />
+      <Form
+        studentGrade={studentGrade}
+        students={students}
+        subjects={subjects}
+        grades={grades}
+      />
     </main>
   );
 }

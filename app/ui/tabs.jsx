@@ -4,19 +4,17 @@ import React, { useState, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 const Tabs = ({ children }) => {
-
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab');
   const defaultTab = tab || children[0].props.label;
   const [activeTab, setActiveTab] = useState(defaultTab);
-  
-  
+
   useEffect(() => {
-      if (tab && tab !== activeTab) {
-        setActiveTab(tab);
-      }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (tab && tab !== activeTab) {
+      setActiveTab(tab);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleClick = (e, newActiveTab) => {

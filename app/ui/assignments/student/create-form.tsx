@@ -2,7 +2,12 @@
 
 import { Student, Subject, Grade } from '@/app/lib/definitions';
 import Link from 'next/link';
-import { UserCircleIcon, AcademicCapIcon, CalendarDaysIcon, BookOpenIcon } from '@heroicons/react/24/outline';
+import {
+  UserCircleIcon,
+  AcademicCapIcon,
+  CalendarDaysIcon,
+  BookOpenIcon,
+} from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
 import { createAssignmentsStudentGrade } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
@@ -21,16 +26,19 @@ export default function Form({
     createAssignmentsStudentGrade,
     initialState,
   );
-  
+
   // Generar opciones para los años
   const current_year = new Date().getFullYear();
   const start_year = current_year - 19;
-  const years = Array.from({ length: current_year - start_year }, (_, index) => current_year - index);
-    
+  const years = Array.from(
+    { length: current_year - start_year },
+    (_, index) => current_year - index,
+  );
+
   return (
     <form action={dispatch}>
       <div className="rounded-md bg-50 p-4 md:p-6">
-        {/* Student Name */}
+        {/* Estudiante */}
         <div className="mb-4">
           <label htmlFor="student" className="mb-2 block text-sm font-medium">
             Estudiante
@@ -98,7 +106,7 @@ export default function Form({
           </div>
         </div>
 
-        {/* Grade Name */}
+        {/* Grado */}
         <div className="mb-4">
           <label htmlFor="grade" className="mb-2 block text-sm font-medium">
             Grado
@@ -154,7 +162,6 @@ export default function Form({
                   {year}
                 </option>
               ))}
-              
             </select>
             <CalendarDaysIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>

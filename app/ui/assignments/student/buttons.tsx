@@ -30,12 +30,18 @@ export function UpdateAssignmentsStudentGrade({ id }: { id: string }) {
 
 export function DeleteAssignmentsStudentGrade({ id }: { id: string }) {
   const initialState = { message: '', errors: {} };
-  const deleteAssignmentsStudentGradeWithId = deleteAssignmentsStudentGrade.bind(null, id);
-  const [state, dispatch] = useFormState(deleteAssignmentsStudentGradeWithId, initialState);
+  const deleteAssignmentsStudentGradeWithId =
+    deleteAssignmentsStudentGrade.bind(null, id);
+  const [state, dispatch] = useFormState(
+    deleteAssignmentsStudentGradeWithId,
+    initialState,
+  );
 
   if (state.message) {
     return (
-      <span className="rounded-md border p-2 text-red-500">{state.message}</span>
+      <span className="rounded-md border p-2 text-red-500">
+        {state.message}
+      </span>
     );
   }
 

@@ -1,4 +1,4 @@
-// Loading animation
+// Cargar animación
 const shimmer =
   'before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent';
 
@@ -122,11 +122,11 @@ export function UsersTableRowSkeleton() {
       <td className="whitespace-nowrap px-3 py-3">
         <div className="h-6 w-32 rounded bg-gray-100"></div>
       </td>
-      {/* Direccion */}
+      {/* Dirección */}
       <td className="whitespace-nowrap px-3 py-3">
         <div className="h-6 w-16 rounded bg-gray-100"></div>
       </td>
-      {/* Telefono */}
+      {/* Teléfono */}
       <td className="whitespace-nowrap px-3 py-3">
         <div className="h-6 w-16 rounded bg-gray-100"></div>
       </td>
@@ -193,10 +193,10 @@ export function UsersTableSkeleton() {
                   Email
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Direccion
+                  Dirección
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Telefono
+                  Teléfono
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Rol
@@ -205,7 +205,7 @@ export function UsersTableSkeleton() {
                   scope="col"
                   className="relative pb-4 pl-3 pr-6 pt-2 sm:pr-6"
                 >
-                  <span className="sr-only">Edit</span>
+                  <span className="sr-only">Editar</span>
                 </th>
               </tr>
             </thead>
@@ -385,7 +385,6 @@ export function GradesTableSkeleton() {
 export function NotesTableRowSkeleton() {
   return (
     <tr className="w-full border-b border-gray-100 last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg">
-            
       {/* Estudiante */}
       <td className="relative overflow-hidden whitespace-nowrap py-3 pl-6 pr-3">
         <div className="flex items-center gap-3">

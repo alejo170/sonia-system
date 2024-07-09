@@ -14,16 +14,17 @@ export default async function NotesTable({
   const session = await auth();
   const id = String(session?.user.id);
   const notesById = await fetchNotesByStudent(id);
-  const notesToDisplay = session?.user.role === 'Estudiante' ? notesById : notes;
-  
+  const notesToDisplay =
+    session?.user.role === 'Estudiante' ? notesById : notes;
+
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
-        {session?.user.role === 'Estudiante' ?
+        {session?.user.role === 'Estudiante' ? (
           <ButtonPDF notes={notesById} />
-        : null }
-        
-        <div className="rounded-lg bg-50 p-2 mt-5 md:pt-0">
+        ) : null}
+
+        <div className="mt-5 rounded-lg bg-50 p-2 md:pt-0">
           <div className="md:hidden">
             {notesToDisplay?.map((note) => (
               <div
@@ -35,25 +36,25 @@ export default async function NotesTable({
                     <div className="mb-2 flex items-center">
                       <p>{note.user_name}</p>
                     </div>
+
                     <p className="text-sm text-gray-500">{note.subject_name}</p>
                     <p className="text-sm text-gray-500">{note.grade_name}</p>
                     <p className="text-sm text-gray-500">{note.year}</p>
                   </div>
-                  
-                  <p>
-                    {note.final}
-                  </p>
+
+                  <p>{note.final}</p>
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
                     <p></p>
                   </div>
-                  {session?.user.role === 'Administrador' || session?.user.role === 'Docente' ?
-                  <div className="flex justify-end gap-2">
-                    <UpdateNotes id={note.id} />
-                    <DeleteNotes id={note.id} />
-                  </div>
-                  : null }
+                  {session?.user.role === 'Administrador' ||
+                  session?.user.role === 'Docente' ? (
+                    <div className="flex justify-end gap-2">
+                      <UpdateNotes id={note.id} />
+                      <DeleteNotes id={note.id} />
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ))}
@@ -64,6 +65,7 @@ export default async function NotesTable({
                 <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
                   Estudiante
                 </th>
+
                 <th scope="col" className="px-3 py-5 font-medium">
                   Asignatura
                 </th>
@@ -95,25 +97,32 @@ export default async function NotesTable({
                 >
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex items-center gap-3">
-                      <p>{note.user_name}</p> 
+                      <p>{note.user_name}</p>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {note.subject_name}
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3">{note.grade_name}</td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {note.grade_name}
+                  </td>
                   <td className="whitespace-nowrap px-3 py-3">{note.year}</td>
-                  <td className="whitespace-nowrap px-3 py-3">{note.period_1}</td>
-                  <td className="whitespace-nowrap px-3 py-3">{note.period_2}</td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {note.period_1}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {note.period_2}
+                  </td>
                   <td className="whitespace-nowrap px-3 py-3">{note.final}</td>
-                  
+
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                  {session?.user.role === 'Administrador' || session?.user.role === 'Docente' ?
-                    <div className="flex justify-end gap-3">
-                      <UpdateNotes id={note.id} />
-                      <DeleteNotes id={note.id} />
-                    </div>
-                  : null }
+                    {session?.user.role === 'Administrador' ||
+                    session?.user.role === 'Docente' ? (
+                      <div className="flex justify-end gap-3">
+                        <UpdateNotes id={note.id} />
+                        <DeleteNotes id={note.id} />
+                      </div>
+                    ) : null}
                   </td>
                 </tr>
               ))}

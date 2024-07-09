@@ -398,7 +398,7 @@ export async function fetchFilteredNotes(query: string, currentPage: number) {
     ORDER BY users.name ASC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
-    
+
     return notes.rows;
   } catch (error) {
     console.error('Error en la base de datos:', error);
@@ -410,13 +410,13 @@ export async function fetchNotesByStudent(id: string) {
   noStore();
   try {
     const notesByStudent = await sql<Note>`
-    SELECT notes.id AS id, CONCAT(users.name, ' ',users.lastname) AS user_id, subjects.name AS subject_id, grades.name AS grade_id, assignment_student.year AS year, notes.period_1, notes.period_2, notes.final
+    SELECT notes.id AS id, CONCAT(users.name, ' ',users.lastname) AS user_name, subjects.name AS subject_name, grades.name AS grade_name, assignment_student.year AS year, notes.period_1, notes.period_2, notes.final
     FROM users, subjects, grades, notes, assignment_student
     WHERE notes.assignment_student_id = assignment_student.id 
     AND users.id = assignment_student.user_id 
     AND subjects.id = assignment_student.subject_id 
     AND grades.id = assignment_student.grade_id
-    AND notes.id = ${id} 
+    AND users.id = ${id} 
     ORDER BY subjects.id ASC
     `;
 
@@ -521,9 +521,7 @@ export async function fetchstudentGradeById(id: string) {
     return studentgrade[0];
   } catch (error) {
     console.error('Error en la base de datos:', error);
-    throw new Error(
-      'No se pudieron recuperar la asignaciones del estudiante.',
-    );
+    throw new Error('No se pudieron recuperar la asignaciones del estudiante.');
   }
 }
 
@@ -553,9 +551,7 @@ export async function fetchFilteredAssignmentsTeacherSubject(
     return teacherSubject.rows;
   } catch (error) {
     console.error('Error en la base de datos:', error);
-    throw new Error(
-      'No se pudieron recuperar las asignaciones del docente.',
-    );
+    throw new Error('No se pudieron recuperar las asignaciones del docente.');
   }
 }
 

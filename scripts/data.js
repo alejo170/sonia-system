@@ -1,4 +1,3 @@
-// Este archivo contiene datos que pueden ser reemplazados con datos reales
 const users = [
   {
     name: 'Alejandro',
