@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -21,6 +21,15 @@ export default function Page() {
           >
             <span>Iniciar sesión</span>{' '}
             <ArrowRightIcon className="w-5 md:w-6" />
+          </Link>
+          <Link
+            href="https://sonia-system-docs.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border-primary flex items-center gap-1 self-start rounded-lg border-2 bg-500 px-6 py-3 text-sm font-medium text-white shadow-[inset_0px_-2px_0px_1px_secondary] transition duration-300 ease-in-out hover:bg-100 hover:text-500"
+          >
+            <span>Guia de usuario</span>{' '}
+            <BookOpenIcon className="w-5 md:w-6" />
           </Link>
         </div>
 
